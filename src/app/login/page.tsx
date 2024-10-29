@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 export default function LoginPage() {
@@ -25,7 +25,7 @@ export default function LoginPage() {
 
         if (success) {
             router.push('/'); // 登录成功后跳转到主页
-            alert('登录成功！'); // 显示登录成功的通知
+            console.log('登录成功！'); // 显示登录成功的通知
         } else {
             // 处理登录失败的情况，例如显示错误消息
             console.error('登录失败:', data.message);
