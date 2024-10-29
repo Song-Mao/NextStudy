@@ -9,7 +9,6 @@ const HomePage = () => {
   const router = useRouter();
   
   useEffect(() => {
-    console.log('我执行了');
     // 模拟用户未登录状态
     const isLoggedIn = false; // 这里可以替换为实际的登录状态检查
     if (!isLoggedIn) {

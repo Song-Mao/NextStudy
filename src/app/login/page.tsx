@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation'
 import { useState } from 'react';
 
 export default function LoginPage() {
@@ -24,6 +24,9 @@ export default function LoginPage() {
         const success = data.success; // 假设接口返回一个 success 字段
 
         if (success) {
+            // Store token in cookies
+            document.cookie = `auth-token=${data.token}; path=/;`; // Assuming the token is in data.token
+
             router.push('/'); // 登录成功后跳转到主页
             console.log('登录成功！'); // 显示登录成功的通知
         } else {

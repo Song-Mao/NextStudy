@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  console.log('我执行了');
   const path = request.nextUrl.pathname;
   const isAuthenticated = !!request.cookies.get('auth-token'); // 检查 cookies 中的 auth-token
-
+  console.log('isAuthenticated', isAuthenticated)
   // 检查是否访问受保护的路由
   if (path === '/' && !isAuthenticated) {
     return NextResponse.redirect(new URL('/login', request.url)); // 重定向到登录页
