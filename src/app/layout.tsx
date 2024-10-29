@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { ChatProvider } from './contexts/ChatContext'; // 导入 ChatProvider
+import { Toaster } from "@/components/ui/toaster"
+
 import '@/styles/globals.css'
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
@@ -9,6 +11,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <body>
         <ChatProvider>
           {children}
+          <Toaster />
+
         </ChatProvider>
       </body>
     </html>

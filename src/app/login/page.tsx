@@ -2,12 +2,13 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react';
+import { useToast } from "@/hooks/use-toast"
 
 export default function LoginPage() {
     const router = useRouter();
+    const { toast } = useToast()
     const [username, setUsername] = useState('admin');
     const [password, setPassword] = useState('666666');
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         // 调用登录接口
@@ -25,10 +26,15 @@ export default function LoginPage() {
 
         if (success) {
             // Store token in cookies
-            document.cookie = `auth-token=${data.token}; path=/;`; // Assuming the token is in data.token
+            document.cookie = `auth-token=${data.user.token}; path=/;`; // 从user对象中获取token
+            toast({
+                title: "提示",
+                description: "登录成功，喜欢您来~",
+            })
+            setTimeout(() => {
+                router.push('/');
+            }, 1500);
 
-            router.push('/'); // 登录成功后跳转到主页
-            console.log('登录成功！'); // 显示登录成功的通知
         } else {
             // 处理登录失败的情况，例如显示错误消息
             console.error('登录失败:', data.message);
