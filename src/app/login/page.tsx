@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast"
 import { login } from '@/lib/request/api/allApi';
+import { SocketService,SocketEvents } from '@/socket/socketClient';
+
 export default function LoginPage() {
     const router = useRouter();
     const { toast } = useToast()
@@ -21,6 +23,17 @@ export default function LoginPage() {
             document.cookie = `token=${response.user.token}; path=/;`; // 从user对象中获取token
             localStorage.setItem('userInfo', JSON.stringify(response.user));
             localStorage.setItem('token', response.user.token);
+            const socketService = new SocketService('http://localhost:3000');//连接socket
+            socketService.connect();
+            // 监听连接成功事件
+            socketService.on(SocketEvents.CONNECT, () => {
+                console.log('成功连接到服务器');
+            });
+
+            // 监听断开连接事件
+            socketService.on(SocketEvents.DISCONNECT, () => {
+                console.log('与服务器断开连接');
+            });
             toast({
                 title: "提示",
                 description: "登录成功，喜欢您来~",

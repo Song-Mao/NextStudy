@@ -3,7 +3,11 @@ import React, { useState } from 'react';
 import { useChat } from '../app/contexts/ChatContext';
 import Message from './Message';
 import { Icon } from '@iconify/react';
+import { io } from 'socket.io-client';
 
+const socket = io('http://localhost:3000'); // 连接到 WebSocket 服务器
+
+console.log('socket',socket)
 interface Chat {
   id?: string;
   name?: string;

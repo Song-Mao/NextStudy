@@ -5,9 +5,12 @@ export class User {
   @ObjectIdColumn()
   id: ObjectId = undefined!;
 
-  @Column()
+  @Column({ type: 'varchar', length: 10, unique: true })
   username: string = '';
 
   @Column()
-  password: string = ''; // 注意：实际应用中请使用哈希密码
+  password: string = ''; 
+
+  @Column({ type: 'boolean', default: false })
+  isOnline: boolean = false;
 }

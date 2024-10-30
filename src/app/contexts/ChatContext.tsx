@@ -17,6 +17,7 @@ interface Chat {
   messages: Message[];
   isGroup: boolean;
   members?: string[];
+  isOnline: boolean;
 }
 
 // 定义聊天上下文的类型

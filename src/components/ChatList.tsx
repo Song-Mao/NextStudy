@@ -6,16 +6,24 @@ import UserAvatar from './UserAvatar';
 // Icon: 图标组件，用于显示各种图标
 import { Icon } from '@iconify/react';
 import { useRouter } from 'next/navigation';
+import { logout } from '@/lib/request/api/allApi';
+
 // ChatList组件: 显示聊天列表的主要组件
 // React.FC 表示这是一个函数组件(Function Component)
 const ChatList: React.FC = () => {
   const router = useRouter();
   // 处理退出登录
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userInfo');
-    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
-    router.push('/login');
+  const handleLogout = async () => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      await logout(userInfo.id);
+      localStorage.removeItem('token');
+      localStorage.removeItem('userInfo');
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
+      router.push('/login');
+    } catch (error) {
+      console.error('退出登录失败:', error);
+    }
   };
 
   // 从ChatContext中获取必要的状态和方法
@@ -62,12 +70,18 @@ const ChatList: React.FC = () => {
                 : 'hover:bg-gray-100 border-transparent hover:border-gray-200 hover:shadow-sm' // 未选中状态样式
               }`}
           >
-            {/* 用户头像 */}
-            <UserAvatar username={chat.username} />
+            {/* 用户头像和在线状态 */}
+            <div className="relative">
+              <UserAvatar username={chat.username} />
+              <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${chat.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
+            </div>
             {/* 聊天信息区域 */}
             <div className="ml-3 flex-1">
               <div className="flex justify-between items-center">
                 <span className="font-medium text-gray-800">{chat.username}</span>
+                <span className={`text-xs ${chat.isOnline ? 'text-green-500' : 'text-gray-400'}`}>
+                  {chat.isOnline ? '在线' : '离线'}
+                </span>
               </div>
             </div>
           </div>
