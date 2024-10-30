@@ -5,16 +5,25 @@ import { useChat } from '@/app/contexts/ChatContext';
 import UserAvatar from './UserAvatar';
 // Icon: 图标组件，用于显示各种图标
 import { Icon } from '@iconify/react';
-
+import { useRouter } from 'next/navigation';
 // ChatList组件: 显示聊天列表的主要组件
 // React.FC 表示这是一个函数组件(Function Component)
 const ChatList: React.FC = () => {
+  const router = useRouter();
+  // 处理退出登录
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userInfo');
+    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
+    router.push('/login');
+  };
+
   // 从ChatContext中获取必要的状态和方法
   // chats: 聊天列表数组
   // setSelectedChat: 设置当前选中的聊天的方法
   // selectedChat: 当前选中的聊天
   const { chats, setSelectedChat, selectedChat } = useChat();
-
+  console.log('chats', chats)
   return (
     // 整体容器：占据1/4宽度，白色背景，右侧边框，阴影效果
     <div className="w-1/4 bg-white border-r border-gray-200 shadow-lg flex flex-col h-full">
@@ -41,8 +50,8 @@ const ChatList: React.FC = () => {
 
       {/* 聊天列表主体区域：可滚动 */}
       <div className="flex-1 overflow-y-auto p-4">
-        {/* 使用map函数遍历渲染每个聊天项 */}
-        {chats.map((chat) => (
+        {/* 使用map函数遍历渲染每个聊天项，排除当前用户 */}
+        {chats && chats.filter(chat => chat.id !== JSON.parse(localStorage.getItem('userInfo') || '{}').id).map((chat) => (
           <div
             key={chat.id} // React需要的唯一key
             onClick={() => setSelectedChat(chat.id)} // 点击时切换选中的聊天
@@ -54,18 +63,12 @@ const ChatList: React.FC = () => {
               }`}
           >
             {/* 用户头像 */}
-            <UserAvatar username={chat.name} />
+            <UserAvatar username={chat.username} />
             {/* 聊天信息区域 */}
             <div className="ml-3 flex-1">
               <div className="flex justify-between items-center">
-                <span className="font-medium text-gray-800">{chat.name}</span>
-                <span className="text-xs text-gray-500">
-                  {chat.messages[chat.messages.length - 1]?.timestamp.split(' ')[1] || ''}
-                </span>
+                <span className="font-medium text-gray-800">{chat.username}</span>
               </div>
-              <p className="text-sm text-gray-500 truncate">
-                {chat.messages[chat.messages.length - 1]?.content || '暂无消息'}
-              </p>
             </div>
           </div>
         ))}
@@ -73,9 +76,16 @@ const ChatList: React.FC = () => {
 
       {/* 底部新建聊天按钮区域 */}
       <div className="p-4 border-t border-gray-200">
-        <button className="w-full flex items-center justify-center gap-2 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+        {/* <button className="w-full flex items-center justify-center gap-2 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
           <Icon icon="mdi:plus" />
           <span>新建聊天</span>
+        </button> */}
+        <button
+          onClick={handleLogout}
+          className="w-full  px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-1"
+        >
+          <Icon icon="mdi:logout" />
+          退出登录
         </button>
       </div>
     </div>

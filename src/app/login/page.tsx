@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast"
-
+import { login } from '@/lib/request/api/allApi';
 export default function LoginPage() {
     const router = useRouter();
     const { toast } = useToast()
@@ -12,21 +12,15 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         // 调用登录接口
-        const response = await fetch('/api/auth/login', { // 替换为您的实际接口路径
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }), // 发送用户名和密码
-        });
-
-        const data = await response.json();
-        console.log('data', data)
-        const success = data.success; // 假设接口返回一个 success 字段
+        const response = await login(username, password);
+        console.log('response', response)
+        const success = response.success; // 假设接口返回一个 success 字段
 
         if (success) {
             // Store token in cookies
-            document.cookie = `auth-token=${data.user.token}; path=/;`; // 从user对象中获取token
+            document.cookie = `token=${response.user.token}; path=/;`; // 从user对象中获取token
+            localStorage.setItem('userInfo', JSON.stringify(response.user));
+            localStorage.setItem('token', response.user.token);
             toast({
                 title: "提示",
                 description: "登录成功，喜欢您来~",
@@ -37,8 +31,8 @@ export default function LoginPage() {
 
         } else {
             // 处理登录失败的情况，例如显示错误消息
-            console.error('登录失败:', data.message);
-            alert(`登录失败: ${data.message}`); // 显示登录失败的通知
+            console.error('登录失败:', response.message);
+            alert(`登录失败: ${response.message}`); // 显示登录失败的通知
         }
     };
 
