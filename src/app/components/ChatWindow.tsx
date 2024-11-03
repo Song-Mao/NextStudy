@@ -1,18 +1,16 @@
 // 导入必要的依赖
 import React, { useState } from 'react';
-import { useChat } from '../app/contexts/ChatContext';
 import Message from './Message';
 import { Icon } from '@iconify/react';
-import { io } from 'socket.io-client';
-
-const socket = io('http://localhost:3000'); // 连接到 WebSocket 服务器
-
-console.log('socket',socket)
 interface Chat {
   id?: string;
-  name?: string;
+  username?: string;
   messages?: Array<{ id: string; content: string; timestamp: string; sender: string }>;
 }
+interface ChatWindowProps {
+  selectedChat: Chat;
+}
+
 // MessageInput组件: 消息输入框组件
 const MessageInput: React.FC = () => {
   const [message, setMessage] = useState('');
@@ -46,25 +44,18 @@ const MessageInput: React.FC = () => {
 };
 
 // ChatWindow组件: 显示聊天窗口的主要组件
-const ChatWindow: React.FC = () => {
-  const { selectedChat, chats } = useChat();
-  const currentChat = chats?.find(chat => chat.id === selectedChat) as Chat;
- 
-  // 如果没有选中的聊天或当前聊天不存在，显示提示信息
-  if (!selectedChat || !currentChat) {
-    return <div>未选择聊天或聊天不存在</div>;
-  }
+const ChatWindow: React.FC<ChatWindowProps> = ({ selectedChat }) => {
 
   return (
     <main className="flex-1 bg-white p-6 h-full flex flex-col shadow-lg">
       <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-4">
         <h2 className="text-xl font-bold text-gray-800">
-          {currentChat.name}
+          {selectedChat?.username}
         </h2>
        
       </div>
       <div className="flex-1 border border-gray-200 rounded-lg p-6 overflow-y-auto bg-gray-50">
-        {currentChat.messages && currentChat.messages.map(message => (
+        {selectedChat?.messages && selectedChat?.messages.map(message => (
           <Message
             key={message.id}
             content={message.content}

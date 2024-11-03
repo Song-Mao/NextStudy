@@ -1,11 +1,11 @@
-import { fetchAPI } from '../request';
+import { fetchAPI } from '../lib/request';
 
 export const login = async (username: string, password: string) => {
-    return fetchAPI('/api/auth/login', 'POST', { username, password });
+    return fetchAPI('/auth/login', 'POST', { username, password });
 };
 
 export const getUserList = async () => {
-    return fetchAPI('/api/user/getUserList', 'GET', {});
+    return fetchAPI('/auth/getUserList', 'GET', {});
 };
 
 export const logout = async (userId: string) => {

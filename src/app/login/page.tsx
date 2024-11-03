@@ -1,51 +1,37 @@
 "use client";
-
 import { useRouter } from 'next/navigation'
 import { useState } from 'react';
-import { useToast } from "@/hooks/use-toast"
-import { login } from '@/lib/request/api/allApi';
-import { SocketService,SocketEvents } from '@/socket/socketClient';
-
+import { login } from '@/api/allApi';
+import { useSocket } from '@/app/context/SocketContext';
 export default function LoginPage() {
     const router = useRouter();
-    const { toast } = useToast()
     const [username, setUsername] = useState('admin');
-    const [password, setPassword] = useState('666666');
+    const [password, setPassword] = useState('123456');
+    const { socketService } = useSocket();
+    console.log(socketService,'socketService=>>>>>>>>>>>>')
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         // 调用登录接口
-        const response = await login(username, password);
-        console.log('response', response)
-        const success = response.success; // 假设接口返回一个 success 字段
+        try {
+            const { data } = await login(username, password);
+            document.cookie = `token=${data.token}; path=/`;
+            localStorage.setItem('userInfo', JSON.stringify(data.user));
+            localStorage.setItem('token', data.token);
+            // // data.token
+            // socketService.connect(`http://localhost:4000`, data.token); //连接websocket
 
-        if (success) {
-            // Store token in cookies
-            document.cookie = `token=${response.user.token}; path=/;`; // 从user对象中获取token
-            localStorage.setItem('userInfo', JSON.stringify(response.user));
-            localStorage.setItem('token', response.user.token);
-            const socketService = new SocketService('http://localhost:3000');//连接socket
-            socketService.connect();
-            // 监听连接成功事件
-            socketService.on(SocketEvents.CONNECT, () => {
-                console.log('成功连接到服务器');
-            });
+            // // 监听连接成功事件
+            // socketService.on('connect', () => {
+            //     console.log('连接成功');
+            //     socketService.emit('message', { content: 'Hello, World!', sender: data.user.username, timestamp: new Date().toISOString() });
+            // });
 
-            // 监听断开连接事件
-            socketService.on(SocketEvents.DISCONNECT, () => {
-                console.log('与服务器断开连接');
-            });
-            toast({
-                title: "提示",
-                description: "登录成功，喜欢您来~",
-            })
             setTimeout(() => {
                 router.push('/');
             }, 1500);
-
-        } else {
+        } catch (error) {
             // 处理登录失败的情况，例如显示错误消息
-            console.error('登录失败:', response.message);
-            alert(`登录失败: ${response.message}`); // 显示登录失败的通知
+            alert(`登录失败: ${error.message}`); // 显示登录失败的通知
         }
     };
 
