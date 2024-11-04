@@ -17,11 +17,8 @@ interface SocketProviderProps {
 export const SocketProvider: React.FC<SocketProviderProps> =React.memo( ({ children }) => {
     const [socket, setSocket] = useState<typeof socketService | null>(null);
     const [selectedChat, setSelectedChat] = useState<any>(null); // 添加新的状态和更新函数
-
     console.log('创建上下文=>>>>>>>>SocketProvider')
     useEffect(() => {
-        console.log('执行了socketService.connect执行了')
-        // 假设您的 socketService 有一个初始化方法
         socketService.connect('http://localhost:4000/chat', {
             token: localStorage.getItem('token') || '',
             userId: JSON.parse(localStorage.getItem('userInfo') || '{}').id

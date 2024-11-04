@@ -24,14 +24,14 @@ class SocketService {
             });
 
             this.socket.on('disconnect', () => {
-                this.socket = null; // 清除socket实例
-                console.log('Socket.IO连接已断开');
+                console.error('Socket.IO连接已断开');
+                // 不要在断开连接时清除socket实例，以便自动重连
             });
 
             // 添加连接错误处理
             this.socket.on('connect_error', (error) => {
                 console.error('Socket.IO连接失败:', error);
-                this.socket = null; // 清除socket实例
+                // 不要在连接错误时清除socket实例，以便自动重连
             });
 
             // 监听重连尝试事件

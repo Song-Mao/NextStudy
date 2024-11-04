@@ -6,7 +6,7 @@ interface ChatData {
 
 interface MessageData {
     content: string;
-    timestamp: string;
-    to?: string;
-    from?: string;
+    timestamp?: ChatData;
+    sender?: ChatData;
+    receiver?: ChatData;
 }

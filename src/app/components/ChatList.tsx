@@ -24,6 +24,10 @@ const ChatList: React.FC<ChatListProps> = () => {
     socket?.on('message', (data) => {
       console.log(data, '收到消息')
     })
+
+    socket?.on('heartbeat', (data) => {
+      console.log(data, '心跳')
+    })
     return () => {
       socket?.disconnect()
     }
@@ -64,10 +68,8 @@ const ChatList: React.FC<ChatListProps> = () => {
   }
 
   useEffect(() => {
-    // socketService.connect(`http://localhost:4000`, localStorage.getItem('token') || ''); //连接websocket
-
-    // 组件挂载时调用getUsersList
     getUsersList();
+
   }, []);
 
 

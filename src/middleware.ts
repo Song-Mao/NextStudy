@@ -6,9 +6,10 @@ export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const token = request.cookies.get('token')?.value;
   const isAuthenticated = !!token;
+  console.log(isAuthenticated,'isAuthenticated=>>>>>>>>>>>>')
 
-
-  if (path === '/' && !isAuthenticated) {
+  if (path !== '/login' && !isAuthenticated) {
+    console.log('path === \'/\' && !isAuthenticated');
     return NextResponse.redirect(new URL('/login', request.url));
   }
   // if(path === '/login' && isAuthenticated){

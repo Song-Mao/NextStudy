@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { useSocket } from '@/contexts/SocketContext';
 import Message from './Message';
-import { Icon } from '@iconify/react';
 import socketService from '@/lib/socketService';
-
+import MessageInput from './MessageInput';
+import { conversation, createConversation } from '@/api/allApi';
 interface Chat {
   id?: string;
   username?: string;
@@ -22,60 +22,35 @@ interface SocketContextType {
   selectedChat?: Chat
 }
 
-// MessageInput组件: 消息输入框组件
-const MessageInput: React.FC<ChatWindowProps> = () => {
-  const { socket, selectedChat } = useSocket() as SocketContextType
 
-  const [message, setMessage] = useState('');
-  const [userInfo, setUserInfo] = useState({}); // 使用状态来管理用户信息
-
-  useEffect(() => {
-    // 确保只在客户端执行此代码
-    if (typeof window !== 'undefined') {
-      const storedUserInfo = localStorage.getItem('userInfo') ;
-      if (storedUserInfo) {
-        setUserInfo(JSON.parse(storedUserInfo));
-      }
-    }
-  }, []);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (message.trim()) {
-      // 实现发送消息的逻辑
-      socket?.emit('message', {
-        content: message,
-        to: selectedChat?.id?.toString(),
-        from: userInfo.id?.toString() // 使用状态中的用户信息
-      } as MessageData)
-      setMessage('');
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
-      <input
-        type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="输入消息..."
-        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-      />
-      <button
-        type="submit"
-        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
-      >
-        <Icon icon="mdi:send" />
-        发送
-      </button>
-    </form>
-  );
-};
 
 // ChatWindow组件: 显示聊天窗口的主要组件
 const ChatWindow: React.FC<ChatWindowProps> = () => {
   const { selectedChat } = useSocket() as SocketContextType
-  console.log('ChatWindow')
+  const [conversationId, setConversationId] = useState('')
+  const getConversation = async () => {
+    const { data } = await conversation(selectedChat?.id || '')
+    console.log(data, 'data=>>>>>>>>>>>>')
+    if(!data){
+      // 创建会话
+      const data = {
+        type: 'private',
+      }
+      const {data: resData} = await createConversation({...data})
+      setConversationId(resData.id)
+      // console.log(resData, 'resData=>>>>>>>>>>>>')
+      
+    }
+
+  }
+
+  useEffect(() => {
+    if (selectedChat?.id) {
+      console.log(selectedChat, 'selectedChat=>>>>>>>>>>>>')
+      console.log('ChatWindow')
+      getConversation()
+    }
+  }, [selectedChat])
   return (
     <main className="flex-1 bg-white p-6 h-full flex flex-col shadow-lg">
       <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-4">
@@ -94,7 +69,7 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
           />
         ))}
       </div>
-      <MessageInput />
+      <MessageInput conversationId={conversationId} />
     </main>
   );
 };

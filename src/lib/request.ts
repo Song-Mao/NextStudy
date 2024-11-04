@@ -27,6 +27,7 @@ axiosInstance.interceptors.response.use(response => {
     console.log('error', error)
     if (error.response && error.response.status === 401) {
         console.error('登录过期，请重新登录');
+         window.location.href = '/login'; 
         // 可以在这里添加跳转到登录页面的逻辑
     }
     return Promise.reject(error);
