@@ -9,5 +9,5 @@ export const getUserList = async () => {
 };
 
 export const logout = async (userId: string) => {
-    return fetchAPI('/api/auth/logout', 'POST', { userId });
+    return fetchAPI('/auth/logout', 'POST', { id:userId });
 };

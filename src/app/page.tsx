@@ -1,15 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
-import ChatList from '@/app/components/ChatList';
-import ChatWindow from '@/app/components/ChatWindow';
+import React from 'react';
+import ChatPage from './chat/page';
 const HomePage = () => {
-  const [selectedChat, setSelectedChat] = useState({});
 
   return (
-    <div className="flex h-screen">
-      <ChatList setSelectedChat={setSelectedChat} />
-      <ChatWindow selectedChat={selectedChat} />
+    <div className="flex w-full h-screen">
+      {/* <ChatPage></ChatPage> */}
     </div>
   );
 };

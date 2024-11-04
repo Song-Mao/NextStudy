@@ -2,13 +2,11 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react';
 import { login } from '@/api/allApi';
-import { useSocket } from '@/app/context/SocketContext';
 export default function LoginPage() {
+
     const router = useRouter();
     const [username, setUsername] = useState('admin');
     const [password, setPassword] = useState('123456');
-    const { socketService } = useSocket();
-    console.log(socketService,'socketService=>>>>>>>>>>>>')
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         // 调用登录接口
@@ -17,6 +15,7 @@ export default function LoginPage() {
             document.cookie = `token=${data.token}; path=/`;
             localStorage.setItem('userInfo', JSON.stringify(data.user));
             localStorage.setItem('token', data.token);
+
             // // data.token
             // socketService.connect(`http://localhost:4000`, data.token); //连接websocket
 
@@ -27,7 +26,7 @@ export default function LoginPage() {
             // });
 
             setTimeout(() => {
-                router.push('/');
+                router.push('/chat');
             }, 1500);
         } catch (error) {
             // 处理登录失败的情况，例如显示错误消息

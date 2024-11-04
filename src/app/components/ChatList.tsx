@@ -1,10 +1,12 @@
+"use client";
 import UserAvatar from './UserAvatar';
 import { Icon } from '@iconify/react';
 import { useRouter } from 'next/navigation';
 import { logout } from '@/api/allApi';
 import { getUserList } from '@/api/allApi';
 import { useState, useEffect } from 'react';
-import socketService from '@/lib/socketService';
+import { useSocket } from '@/contexts/SocketContext';
+import React from 'react';
 interface chat {
   id: string;
   username: string;
@@ -12,10 +14,21 @@ interface chat {
 }
 
 interface ChatListProps {
-  setSelectedChat: (chat: chat) => void;
+  setSelectedChat?: (chat: chat) => void;
 }
 
-const ChatList: React.FC<ChatListProps> = ({ setSelectedChat }) => {
+const ChatList: React.FC<ChatListProps> = () => {
+  console.log('ChatList')
+  const { socket, setSelectedChat } = useSocket()
+  useEffect(() => {
+    socket?.on('message', (data) => {
+      console.log(data, '收到消息')
+    })
+    return () => {
+      socket?.disconnect()
+    }
+  }, [socket])
+
   const router = useRouter();
   // 处理退出登录
   const handleLogout = async () => {
@@ -43,9 +56,7 @@ const ChatList: React.FC<ChatListProps> = ({ setSelectedChat }) => {
   const selectedChat = ''
   const onSetSelectedChat = (chat: chat) => {
     console.log('选择联系人')
-    socketService.emit('message', { content: '开门，是我!', sender: chat.username, timestamp: new Date().toISOString() });
     setSelectedChat(chat)
-
   }
   const getUsersList = async () => {
     const { data } = await getUserList()
@@ -53,11 +64,10 @@ const ChatList: React.FC<ChatListProps> = ({ setSelectedChat }) => {
   }
 
   useEffect(() => {
-    socketService.connect(`http://localhost:4000`, localStorage.getItem('token') || ''); //连接websocket
+    // socketService.connect(`http://localhost:4000`, localStorage.getItem('token') || ''); //连接websocket
 
     // 组件挂载时调用getUsersList
     getUsersList();
-
   }, []);
 
 
@@ -131,7 +141,6 @@ const ChatList: React.FC<ChatListProps> = ({ setSelectedChat }) => {
       </div >
     </div >
   );
-};
-
+}
 // 导出ChatList组件供其他组件使用
 export default ChatList;

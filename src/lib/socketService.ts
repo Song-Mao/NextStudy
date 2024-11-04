@@ -1,32 +1,20 @@
 import { io, Socket } from 'socket.io-client';
 
-// 定义事件数据类型
-interface ChatData {
-    id: string;
-    username: string;
-    isOnline: boolean;
-}
-
-interface MessageData {
-    content: string;
-    sender: string;
-    timestamp: string;
-}
-
 type EventData = ChatData[] | MessageData | null;
 
 class SocketService {
     private socket: Socket | null = null;
 
     // 初始化Socket连接
-    public connect(url: string, token: string): void {
+    public connect(url: string, { token, userId }: { token: string, userId: string }): void {
         if (!this.socket) {
             this.socket = io(url, {
                 query: {
-                    token
+                    token,
+                    userId
                 },
                 reconnection: true, // 启用自动重连
-                reconnectionAttempts: 5, // 最大重连尝试次数
+                reconnectionAttempts: 30, // 最大重连尝试次数
                 reconnectionDelay: 1000 // 重连延迟时间（毫秒）
             });
 
