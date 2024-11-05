@@ -6,7 +6,8 @@ import { createConversation } from '@/api/allApi';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { addConversation } from '@/store/chatSlice';
-
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 interface Chat {
   id: string;
   username: string;
@@ -28,7 +29,6 @@ const MessageInput: React.FC<ChatWindowProps> = () => {
       // 实现发送消息的逻辑
       const senderInfo = localStorage.getItem('userInfo');
       const sender = senderInfo ? JSON.parse(senderInfo) : undefined;
-      console.log('初始化conversationId',conversationId)
       let currentConversationId = conversationId; // 使用局部变量来处理会话ID
       if (!currentConversationId) {
         // 创建会话
@@ -38,12 +38,7 @@ const MessageInput: React.FC<ChatWindowProps> = () => {
           targetUserId: selectedChat?.id as string
         });
         currentConversationId = data.id; // 更新局部变量为新的会话ID
-        console.log('currentConversationId',currentConversationId)
-        console.log(data, '创建会话data=>>>>>>>>>>>>');
-      } else {
-        console.log('conversationId', currentConversationId);
       }
-
       const messageData = JSON.stringify({
         conversationId: currentConversationId, // 使用局部变量发送消息
         content: message,
@@ -57,24 +52,12 @@ const MessageInput: React.FC<ChatWindowProps> = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
-      <input
-        type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="输入消息..."
-        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-      />
-      <button
-        type="submit"
-        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
-      >
-        <Icon icon="mdi:send" />
-        发送
-      </button>
+    <form className="mt-4 flex gap-2">
+      <Input value={message}
+        onChange={(e) => setMessage(e.target.value)} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" type="textarea" placeholder="Type your message here..." />
+      <Button onClick={handleSubmit} type="submit"> <Icon icon="mdi:send" />Send</Button>
     </form>
   );
 };
-
 
 export default MessageInput

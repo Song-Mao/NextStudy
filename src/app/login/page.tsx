@@ -2,13 +2,19 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react';
 import { login } from '@/api/allApi';
+import { useToast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
 export default function LoginPage() {
 
     const router = useRouter();
     const [username, setUsername] = useState('admin');
     const [password, setPassword] = useState('123456');
+
+    const { toast } = useToast()
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+
         // 调用登录接口
         try {
             const { data } = await login(username, password);
@@ -24,8 +30,13 @@ export default function LoginPage() {
             //     console.log('连接成功');
             //     socketService.emit('message', { content: 'Hello, World!', sender: data.user.username, timestamp: new Date().toISOString() });
             // });
+            toast({
+                description: "🩷喜欢您来~",
+                className: "fixed top-4 left-1/2 transform -translate-x-1/2 z-[100] flex max-h-screen w-full flex-col p-4 md:max-w-[420px]",
+            })
 
             setTimeout(() => {
+
                 router.push('/chat');
             }, 1500);
         } catch (error) {

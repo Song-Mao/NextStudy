@@ -5,6 +5,8 @@ import React from 'react';
 import '@/styles/globals.css';
 import { Provider } from 'react-redux';
 import store from '@/store';
+import { Toaster } from "@/components/ui/toaster"
+
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
@@ -12,6 +14,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <body>
         <Provider store={store}>
           {children}
+          <Toaster />
         </Provider>
       </body>
     </html>
