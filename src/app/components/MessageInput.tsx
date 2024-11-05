@@ -3,18 +3,24 @@ import { useState } from 'react';
 import { useSocket } from '@/contexts/SocketContext';
 import { Icon } from '@iconify/react';
 import { createConversation } from '@/api/allApi';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/store';
+import { addConversation } from '@/store/chatSlice';
+
 interface Chat {
   id: string;
   username: string;
 }
 interface ChatWindowProps {
   selectedChat?: Chat;
-  conversationId: string | number
 }
+// selectedChat,setConversationList, conversationList
 
-
-const MessageInput: React.FC<ChatWindowProps> = ({ conversationId }) => {
-  const { socket, selectedChat,setConversationList, conversationList } = useSocket() as SocketContextType
+const MessageInput: React.FC<ChatWindowProps> = () => {
+  const { socket } = useSocket() as SocketContextType
+  const dispatch = useDispatch();
+  const conversationId = useSelector((state: RootState) => state.chat.conversationId);
+  const selectedChat = useSelector((state: RootState) => state.chat.selectedChat);
   const [message, setMessage] = useState('');
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,10 +28,9 @@ const MessageInput: React.FC<ChatWindowProps> = ({ conversationId }) => {
       // 实现发送消息的逻辑
       const senderInfo = localStorage.getItem('userInfo');
       const sender = senderInfo ? JSON.parse(senderInfo) : undefined;
-
+      console.log('初始化conversationId',conversationId)
       let currentConversationId = conversationId; // 使用局部变量来处理会话ID
-
-      if (!conversationId) {
+      if (!currentConversationId) {
         // 创建会话
         const { data } = await createConversation({
           type: 'private',
@@ -33,9 +38,10 @@ const MessageInput: React.FC<ChatWindowProps> = ({ conversationId }) => {
           targetUserId: selectedChat?.id as string
         });
         currentConversationId = data.id; // 更新局部变量为新的会话ID
+        console.log('currentConversationId',currentConversationId)
         console.log(data, '创建会话data=>>>>>>>>>>>>');
       } else {
-        console.log('conversationId', conversationId);
+        console.log('conversationId', currentConversationId);
       }
 
       const messageData = JSON.stringify({
@@ -45,7 +51,7 @@ const MessageInput: React.FC<ChatWindowProps> = ({ conversationId }) => {
         receiver: selectedChat,
       });
       socket?.emit('message', messageData);
-      setConversationList([...conversationList, JSON.parse(messageData)]);
+      dispatch(addConversation(JSON.parse(messageData)));
       setMessage('');
     }
   };
