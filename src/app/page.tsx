@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import ChatPage from './chat/page';
+// import ChatPage from './chat/page';
 const HomePage = () => {
 
   return (

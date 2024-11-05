@@ -7,25 +7,24 @@ import { getUserList } from '@/api/allApi';
 import { useState, useEffect } from 'react';
 import { useSocket } from '@/contexts/SocketContext';
 import React from 'react';
-interface chat {
-  id: string;
-  username: string;
-  isOnline: boolean;
-}
 
 interface ChatListProps {
-  setSelectedChat?: (chat: chat) => void;
+  setSelectedChat?: (chat: ChatData) => void;
 }
 
 const ChatList: React.FC<ChatListProps> = () => {
   console.log('ChatList')
-  const { socket, setSelectedChat } = useSocket()
+  const { socket, setSelectedChat,conversationList,setConversationList } = useSocket() as SocketContextType
   useEffect(() => {
-    socket?.on('message', (data) => {
+    socket?.on('message', (data:MessageData) => {
+
+      setConversationList(conversationList => [...conversationList, data]);
+      // setConversationList([...conversationList, data])
+      console.log(conversationList, '更新后的历史消息')
       console.log(data, '收到消息')
     })
 
-    socket?.on('heartbeat', (data) => {
+    socket?.on('heartbeat', (data:MessageData) => {
       console.log(data, '心跳')
     })
     return () => {
@@ -52,26 +51,18 @@ const ChatList: React.FC<ChatListProps> = () => {
     }
   };
 
-  // 从ChatContext中获取必要的状态和方法
-  // chats: 聊天列表数组
-  // setSelectedChat: 设置当前选中的聊天的方法
-  // selectedChat: 当前选中的聊天
-  const [chats, setChats] = useState<chat[]>([])
+  const [chats, setChats] = useState<ChatData[]>([])
   const selectedChat = ''
-  const onSetSelectedChat = (chat: chat) => {
-    console.log('选择联系人')
+  const onSetSelectedChat = (chat: ChatData) => {
     setSelectedChat(chat)
   }
   const getUsersList = async () => {
     const { data } = await getUserList()
     setChats(data)
   }
-
   useEffect(() => {
     getUsersList();
-
   }, []);
-
 
   return (
     // 整体容器：占据1/4宽度，白色背景，右侧边框，阴影效果
@@ -133,7 +124,7 @@ const ChatList: React.FC<ChatListProps> = () => {
 
       {/* 底部新建聊天按钮区域 */}
       < div className="p-4 border-t border-gray-200" >
-        < button
+        <button
           onClick={handleLogout}
           className="w-full  px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-1"
         >

@@ -12,12 +12,17 @@ export const getUserList = async () => {
 export const logout = async (userId: string) => {
     return fetchAPI('/auth/logout', 'POST', { id: userId });
 };
-// 获取会话
-export const conversation = async (userId: string) => {
-    return fetchAPI(`/conversation/${userId}`, 'GET');
+// 查询会话
+export const conversation = async (data: { currentUserId: string, targetUserId: string }) => {
+    return fetchAPI(`/conversation/getConversation`, 'Post', data);
 };
 
 // 创建会话
-export const createConversation = async (data: { type: string }) => {
-    return fetchAPI(`/conversation`, 'POST', { data });
+export const createConversation = async (data: { type: string, currentUserId: string, targetUserId: string }) => {
+    return fetchAPI(`/conversation/create`, 'POST',  data );
+};
+
+// 查询所选用户的所有聊天记录
+export const getCurrentConversationList = async (id:string) => {
+    return fetchAPI(`/message/${id}`, 'GET');
 };
