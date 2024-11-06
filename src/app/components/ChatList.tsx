@@ -60,11 +60,20 @@ const ChatList: React.FC = () => {
     dispatch(setSelectedChat(chat));
   };
 
+  // 使用useState来存储userInfo，确保只在客户端设置
+  const [userInfo, setUserInfo] = useState<{ username?: string }>({});
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setUserInfo(JSON.parse(localStorage.getItem('userInfo') || '{}'));
+    }
+  }, []);
+
   return (
     <div className="w-1/4 bg-white border-r border-gray-200 flex flex-col h-full shadow-lg">
       <div className="p-4 border-b border-gray-300">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-800">你好, {JSON.parse(localStorage.getItem('userInfo') || '{}').username}</h2>
+          <h2 className="text-lg font-semibold text-gray-800">你好, {userInfo.username}</h2>
         </div>
         <div className="relative">
           <input
