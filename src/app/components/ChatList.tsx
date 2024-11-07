@@ -3,7 +3,7 @@ import UserAvatar from './UserAvatar';
 import { Icon } from '@iconify/react';
 import { useRouter } from 'next/navigation';
 import { logout } from '@/api/allApi';
-import { getUserList } from '@/api/allApi';
+import { getUserList, conversationAll } from '@/api/allApi';
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
@@ -11,14 +11,25 @@ import { addConversation, setSelectedChat, clearChatState } from '@/store/chatSl
 import React from 'react';
 import { useSocket } from '@/contexts/SocketContext';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+
 const ChatList: React.FC = () => {
   const { socket } = useSocket() as SocketContextType
   const dispatch = useDispatch();
   const selectedChat = useSelector((state: RootState) => state.chat.selectedChat);
-
+  const [conversations, setconversations] = useState<ChatData[]>([]);
+  
+  const getConversation = async () => {
+    const { data: ChatData } = await conversationAll();
+    setconversations(ChatData);
+    console.log(ChatData, '会话记录=>>>>>>>>>>>>');
+  };
   useEffect(() => {
     socket?.on('message', (data: MessageData) => {
       dispatch(addConversation(data));
+
+      getUsersList();
     })
     socket?.on('heartbeat', (data: MessageData) => {
       console.log(data, '心跳')
@@ -26,6 +37,7 @@ const ChatList: React.FC = () => {
   }, [socket])
   const router = useRouter();
 
+  // 退出登录
   const handleLogout = async () => {
     try {
       const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -46,7 +58,7 @@ const ChatList: React.FC = () => {
   };
 
   const [chats, setChats] = useState<ChatData[]>([]);
-
+  // 获取用户列表
   const getUsersList = async () => {
     const { data } = await getUserList();
     setChats(data);
@@ -55,7 +67,7 @@ const ChatList: React.FC = () => {
   useEffect(() => {
     getUsersList();
   }, []);
-
+  // 设置选中聊天
   const onSetSelectedChat = (chat: ChatData) => {
     dispatch(setSelectedChat(chat));
   };
@@ -68,6 +80,8 @@ const ChatList: React.FC = () => {
       setUserInfo(JSON.parse(localStorage.getItem('userInfo') || '{}'));
     }
   }, []);
+
+
 
   return (
     <div className="w-1/4 bg-white border-r border-gray-200 flex flex-col h-full shadow-lg">
@@ -84,33 +98,68 @@ const ChatList: React.FC = () => {
           <Icon icon="mdi:magnify" className="absolute left-3 top-3 text-gray-500" />
         </div>
       </div>
-
       <div className="flex-1 overflow-y-auto p-2">
-        {chats && chats.filter(chat => chat.id !== JSON.parse(localStorage.getItem('userInfo') || '{}').id).map((chat) => (
-          <div
-            key={chat.id}
-            onClick={() => onSetSelectedChat(chat)}
-            className={`flex items-center cursor-pointer px-3 py-2 mb-2 rounded-lg 
+        <Tabs defaultValue="alluser" className="w-full">
+          <TabsList className='w-full'>
+            <TabsTrigger value="alluser" className='w-1/2'>所有用户</TabsTrigger>
+            <TabsTrigger value="recent" className='w-1/2' onClick={getConversation}>最近聊天</TabsTrigger>
+          </TabsList>
+          <TabsContent value="alluser">
+            {chats && chats.map((chat) => (
+              <div
+                key={chat.id}
+                onClick={() => onSetSelectedChat(chat)}
+                className={`flex items-center cursor-pointer px-3 py-2 mb-2 rounded-lg 
               transition-all duration-200 border
               ${selectedChat?.id === chat.id
-                ? 'border-black shadow-md'
-                : 'hover:bg-gray-100 border-transparent hover:border-gray-300 hover:shadow-sm'
-              }`}
-          >
-            <div className="relative">
-              <UserAvatar username={chat.username} />
-              <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${chat.isOnline ? 'bg-green-400' : 'bg-gray-500'}`} />
-            </div>
-            <div className="ml-3 flex-1">
-              <div className="flex justify-between items-center">
-                <span className="font-medium text-gray-800">{chat.username}</span>
-                <span className={`text-xs ${chat.isOnline ? 'text-green-400' : 'text-gray-500'}`}>
-                  {chat.isOnline ? '在线' : '离线'}
-                </span>
+                    ? 'border-black shadow-md'
+                    : 'hover:bg-gray-100 border-transparent hover:border-gray-300 hover:shadow-sm'
+                  }`}
+              >
+                <div className="relative">
+                  <UserAvatar username={chat.username} />
+                  <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${chat.isOnline ? 'bg-green-400' : 'bg-gray-500'}`} />
+                </div>
+                <div className="ml-3 flex-1">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-gray-800">{chat.username}</span>
+                    <span className={`text-xs ${chat.isOnline ? 'text-green-400' : 'text-gray-500'}`}>
+                      {chat.isOnline ? '在线' : '离线'}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
+            ))}
+          </TabsContent>
+          <TabsContent value="recent">
+            {conversations && conversations.map((chat) => (
+              <div
+                key={chat.id}
+                onClick={() => onSetSelectedChat(chat.receiver)}
+                className={`flex items-center cursor-pointer px-3 py-2 mb-2 rounded-lg 
+              transition-all duration-200 border
+              ${selectedChat?.id === chat.id
+                    ? 'border-black shadow-md'
+                    : 'hover:bg-gray-100 border-transparent hover:border-gray-300 hover:shadow-sm'
+                  }`}
+              >
+                <div className="relative">
+                  <UserAvatar username={chat.receiver.username} />
+                  <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${chat.receiver.isOnline ? 'bg-green-400' : 'bg-gray-500'}`} />
+                </div>
+                <div className="ml-3 flex-1">
+                  <div className="flex flex-col justify-between">
+                    <span className="font-medium text-gray-800">{chat.receiver.username}</span>
+                    <span className="text-xs text-gray-600">{chat.lastMessage?.content}</span>
+                    <span className={`text-xs ${chat.receiver.isOnline ? 'text-green-400' : 'text-gray-500'}`}>
+                      {chat.receiver.isOnline ? '在线' : '离线'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </TabsContent>
+        </Tabs>
       </div>
 
       <div className="p-4 border-t border-gray-300">

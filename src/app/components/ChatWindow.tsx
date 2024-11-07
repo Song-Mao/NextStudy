@@ -16,7 +16,7 @@ interface ChatWindowProps {
 // ChatWindow组件: 显示聊天窗口的主要组件
 const ChatWindow: React.FC<ChatWindowProps> = () => {
   const dispatch = useDispatch();
-  const selectedChat = useSelector((state: RootState) => state.chat.selectedChat);
+  const selectedChat = useSelector((state: RootState) => state.chat.selectedChat)
   const conversationList = useSelector((state: RootState) => state.chat.conversationList);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const getConversation = async () => {
@@ -26,8 +26,8 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
       targetUserId: selectedChat?.id as string
     });
     dispatch(setConversationId(data.id));
-    const { data: conversationList } = await getCurrentConversationList(data.id);
-    dispatch(setConversationList(conversationList));
+    const { data: conversationList } = await getCurrentConversationList({ id: data.id });
+    dispatch(setConversationList(conversationList.items));
     console.log(conversationList, '消息记录=>>>>>>>>>>>>');
   };
 
@@ -56,7 +56,7 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
             </h2>
           </div>
           <ScrollArea ref={scrollAreaRef} className="flex-1 pr-2 bg-white">
-            {conversationList.length > 0 ? (
+            {
               conversationList.map((message: MessageData, index: number) => (
                 <Message
                   key={index}
@@ -66,13 +66,9 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
                   receiver={message.receiver}
                 />
               ))
-            ) : (
-              <div className="text-center text-gray-500">没有选中的聊天</div>
-            )}
-
+            }
           </ScrollArea>
           <MessageInput />
-
         </main>
       ) : (
         <div className="flex-1 flex items-center justify-center text-gray-500 bg-[#FFF]">

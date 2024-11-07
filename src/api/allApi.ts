@@ -17,12 +17,18 @@ export const conversation = async (data: { currentUserId: string, targetUserId: 
     return fetchAPI(`/conversation/getConversation`, 'Post', data);
 };
 
+// 查询会话
+export const conversationAll = async () => {
+    return fetchAPI(`/conversation/getConversationAll`, 'GET');
+};
+
+
 // 创建会话
 export const createConversation = async (data: { type: string, currentUserId: string, targetUserId: string }) => {
-    return fetchAPI(`/conversation/create`, 'POST',  data );
+    return fetchAPI(`/conversation/create`, 'POST', data);
 };
 
 // 查询所选用户的所有聊天记录
-export const getCurrentConversationList = async (id:string) => {
-    return fetchAPI(`/message/${id}`, 'GET');
+export const getCurrentConversationList = async ({ id, page = 1, pageSize = 10 }: { id: string, page: number, pageSize: number }) => {
+    return fetchAPI(`/message/${id}?page=${page}&pageSize=${pageSize}`, 'GET');
 };
