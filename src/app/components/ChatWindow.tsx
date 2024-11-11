@@ -19,6 +19,8 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
   const selectedChat = useSelector((state: RootState) => state.chat.selectedChat)
   const conversationList = useSelector((state: RootState) => state.chat.conversationList);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const conversationId = useSelector((state: RootState) => state.chat.conversationId);
+  // 获取会话id
   const getConversation = async () => {
     const { id: currentUserId } = JSON.parse(localStorage.getItem('userInfo') || '{}');
     const { data } = await conversation({
@@ -26,11 +28,16 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
       targetUserId: selectedChat?.id as string
     });
     dispatch(setConversationId(data.id));
-    const { data: conversationList } = await getCurrentConversationList({ id: data.id });
-    dispatch(setConversationList(conversationList.items));
-    console.log(conversationList, '消息记录=>>>>>>>>>>>>');
+    getConversationList(data.id, 1, 30)
   };
 
+
+  // 获取会话记录
+  const getConversationList = async (id: string, page: number, pageSize: number) => {
+    const { data: conversations } = await getCurrentConversationList({ id, page, pageSize });
+    const tempList = [...conversationList, ...conversations.items.reverse()]
+    dispatch(setConversationList(tempList));
+  }
   useEffect(() => {
     if (selectedChat?.id) {
       console.log(selectedChat, 'selectedChat=>>>>>>>>>>>>');
@@ -38,6 +45,26 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
       getConversation();
     }
   }, [selectedChat]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollAreaRef.current) {
+        const isAtTop = scrollAreaRef.current.scrollTop === 0;
+        if (isAtTop) {
+          console.log('已经触顶');
+          // 可以在这里添加加载更多消息的逻辑
+          getConversationList(conversationId as string, 2, 30)
+        }
+      }
+    };
+
+    const scrollDiv = scrollAreaRef.current;
+    scrollDiv?.addEventListener('scroll', handleScroll);
+
+    return () => {
+      scrollDiv?.removeEventListener('scroll', handleScroll);
+    };
+  }, [scrollAreaRef.current]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {

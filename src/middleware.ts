@@ -1,24 +1,36 @@
+// src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  console.log('middleware');
-  const path = request.nextUrl.pathname;
-  const token = request.cookies.get('token')?.value;
-  const isAuthenticated = !!token;
-  console.log(isAuthenticated,'isAuthenticated=>>>>>>>>>>>>')
+export async function middleware(request: NextRequest) {
+  // 从cookie或header获取token
+  const token = request.cookies.get('token')?.value ||
+    request.headers.get('authorization')?.replace('Bearer ', '');
 
-  if (path !== '/login' && !isAuthenticated) {
-    console.log('path === \'/\' && !isAuthenticated');
+  // 对于首页的处理
+  if (request.nextUrl.pathname === '/') {
+    if (!token) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    return NextResponse.redirect(new URL('/chat', request.url));
+  }
+
+  // 登录页面处理
+  if (request.nextUrl.pathname === '/login') {
+    if (token) {
+      return NextResponse.redirect(new URL('/chat', request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // 其他受保护路由的处理
+  if (!token) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
-  // if(path === '/login' && isAuthenticated){
-  //   return NextResponse.redirect(new URL('/', request.url));
-  // }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/', '/login'],
+  matcher: ['/', '/chat/:path*', '/login']
 };

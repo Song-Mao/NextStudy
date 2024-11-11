@@ -2,14 +2,26 @@ interface ChatData {
     id?: string;
     username: string;
     isOnline: boolean;
+    password: string;
+    isOnline: boolean;
+    isPrivate: boolean;
+    token: string;
+    createTime: string;
+
 }
 
-interface MessageData {
+interface MessageData extends ChatData {
     id?: string;
     content: string;
     timestamp?: string;
     sender: ChatData;
-    receiver?: ChatData;
+    lastMessage?: {
+        content: string;
+    };
+    receiver: {
+        username: string;
+        isOnline: boolean;
+    };
 }
 
 

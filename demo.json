@@ -1,0 +1,10 @@
+{
+    "receiver": {
+        "id": 12,
+        "username": "wanqing",
+        "password": "123456",
+        "isOnline": true,
+        "isPrivate": true,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IndhbnFpbmciLCJzdWIiOjEyLCJpYXQiOjE3MzEzMTM2MTEsImV4cCI6MTczMTQwMDAxMX0.XD2IT2zZXUt5XFY8fBJ66ICqhA2j119O8EW7cEuIQ4k",
+    "createTime": "2024-11-11T08:26:50.000Z"
+}

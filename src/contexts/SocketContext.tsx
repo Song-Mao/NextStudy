@@ -11,12 +11,11 @@ interface SocketContextType {
 }
 
 const SocketContext = createContext<SocketContextType | null>(null);
-
 interface SocketProviderProps {
     children: ReactNode;
 }
 
-export const SocketProvider: React.FC<SocketProviderProps> =React.memo( ({ children }) => {
+export const SocketProvider: React.FC<SocketProviderProps> =({ children }) => {
     const [socket, setSocket] = useState<typeof socketService | null>(null); // socket实例
     const [selectedChat, setSelectedChat] = useState<ChatData | null>(null); // 当前选中的聊天对象
     // 聊天记录
@@ -35,11 +34,11 @@ export const SocketProvider: React.FC<SocketProviderProps> =React.memo( ({ child
         };
     }, []);
 
+    // 返回SocketContext.Provider，提供socket, selectedChat, setSelectedChat, conversationList, setConversationList这些属性
     return (
         <SocketContext.Provider value={{ socket, selectedChat, setSelectedChat, conversationList, setConversationList }}>
             {children}
         </SocketContext.Provider>
     );
-})
-SocketProvider.displayName = 'SocketProvider'
+}
 export const useSocket = (): SocketContextType | null => useContext(SocketContext);
